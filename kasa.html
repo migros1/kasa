@@ -40,6 +40,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            cursor: pointer;
         }
 
         li img {
@@ -89,10 +90,11 @@
         .modal-content {
             background-color: #fff;
             padding: 20px;
-            border-radius: 5px;
+            border-radius: 10px;
             width: 300px;
             text-align: center;
             animation: slideDown 0.3s ease-out;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         @keyframes slideDown {
@@ -144,7 +146,7 @@
                     products = lines.map(line => {
                         const [name, code, image] = line.split(' - ');
                         return { name, code, image };
-                    });
+                    }).filter(product => product.name && product.code && product.image);
                     renderProducts(products);
                 })
                 .catch(error => console.error('Dosya yükleme hatası:', error));
@@ -156,8 +158,11 @@
                     li.innerHTML = `
                         <img src="${product.image}" alt="${product.name}">
                         ${product.name} - Kasa Kodu: ${product.code}
-                        <button onclick="addToFavorites('${product.name}', '${product.code}', '${product.image}')">Favorilere Ekle</button>
                     `;
+                    li.onclick = function() {
+                        currentFavorite = product;
+                        showActionModal();
+                    };
                     productList.appendChild(li);
                 });
             }
@@ -181,29 +186,32 @@
                     `;
                     li.onclick = function() {
                         currentFavorite = favorite;
-                        actionModal.style.display = 'flex';
+                        showActionModal();
                     };
                     favoritesList.appendChild(li);
                 });
             }
 
-            copyCodeButton.onclick = function() {
-                if (currentFavorite) {
-                    navigator.clipboard.writeText(currentFavorite.code).then(() => {
-                        alert('Kasa kodu kopyalandı!');
-                    });
-                }
-                actionModal.style.display = 'none';
-            };
+            function showActionModal() {
+                actionModal.style.display = 'flex';
+                copyCodeButton.onclick = function() {
+                    if (currentFavorite) {
+                        navigator.clipboard.writeText(currentFavorite.code).then(() => {
+                            alert('Kasa kodu kopyalandı!');
+                        });
+                    }
+                    actionModal.style.display = 'none';
+                };
 
-            removeFavoriteButton.onclick = function() {
-                if (currentFavorite) {
-                    favorites = favorites.filter(fav => fav.name !== currentFavorite.name);
-                    localStorage.setItem('favorites', JSON.stringify(favorites));
-                    renderFavorites();
-                }
-                actionModal.style.display = 'none';
-            };
+                removeFavoriteButton.onclick = function() {
+                    if (currentFavorite) {
+                        favorites = favorites.filter(fav => fav.name !== currentFavorite.name);
+                        localStorage.setItem('favorites', JSON.stringify(favorites));
+                        renderFavorites();
+                    }
+                    actionModal.style.display = 'none';
+                };
+            }
 
             actionModal.onclick = function(event) {
                 if (event.target === actionModal) {

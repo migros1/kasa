@@ -182,6 +182,14 @@
             border-radius: 50%;
         }
 
+        #actionModal {
+            z-index: 2;
+        }
+
+        #favoritesModal {
+            z-index: 1;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -290,6 +298,7 @@
             }
 
             function showActionModal() {
+                favoritesModal.style.display = 'none'; // Favoriler modalını kapat
                 actionModal.style.display = 'flex';
                 copyCodeButton.onclick = function() {
                     if (currentFavorite) {

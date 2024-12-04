@@ -141,7 +141,7 @@
             background-color: #fff;
             padding: 30px 20px;
             border-radius: 15px;
-            width: 400px; /* Genişlik arttırıldı */
+            width: 400px;
             max-height: 80%;
             overflow-y: auto;
             text-align: center;
@@ -263,6 +263,8 @@
             const closeFavoritesButton = document.getElementById('closeFavoritesButton');
             const favoritesSearchBox = document.getElementById('favoritesSearchBox');
 
+            const defaultImage = "https://images.sftcdn.net/images/t_app-icon-s/p/0642cb1f-18e9-46e6-860c-3f9254debea6/2321330045/migros-sanal-market-logo";
+
             let products = [];
             let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
             let currentFavorite = null;
@@ -274,8 +276,8 @@
                     const lines = data.trim().split('\n');
                     products = lines.map(line => {
                         const [name, code, image] = line.split(' - ');
-                        return { name, code, image };
-                    }).filter(product => product.name && product.code && product.image);
+                        return { name, code, image: image || defaultImage };
+                    }).filter(product => product.name && product.code);
                     renderProducts(products);
                 })
                 .catch(error => console.error('Dosya yükleme hatası:', error));

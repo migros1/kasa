@@ -218,6 +218,7 @@
     <div class="modal" id="favoritesModal">
         <div class="modal-content">
             <h3>Favori Ürünler</h3>
+            <input type="text" id="favoritesSearchBox" placeholder="Favorilerde Ara..." style="margin-bottom: 15px;">
             <ul class="favorite-list" id="modalFavoritesList"></ul>
             <button id="closeFavoritesButton">Kapat</button>
         </div>
@@ -234,6 +235,7 @@
             const removeFavoriteButton = document.getElementById('removeFavoriteButton');
             const showFavoritesButton = document.getElementById('showFavoritesButton');
             const closeFavoritesButton = document.getElementById('closeFavoritesButton');
+            const favoritesSearchBox = document.getElementById('favoritesSearchBox');
 
             let products = [];
             let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
@@ -281,9 +283,10 @@
                 }
             }
 
-            function renderFavorites() {
+            function renderFavorites(searchTerm = '') {
                 modalFavoritesList.innerHTML = '';
-                favorites.forEach(favorite => {
+                favorites.filter(favorite => favorite.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                .forEach(favorite => {
                     const li = document.createElement('li');
                     li.innerHTML = `
                         <img src="${favorite.image}" alt="${favorite.name}">
@@ -344,6 +347,11 @@
                 const searchTerm = searchBox.value.toLowerCase();
                 const filteredProducts = products.filter(product => product.name.toLowerCase().includes(searchTerm));
                 renderProducts(filteredProducts);
+            });
+
+            favoritesSearchBox.addEventListener('input', function() {
+                const searchTerm = favoritesSearchBox.value;
+                renderFavorites(searchTerm);
             });
 
             showFavoritesButton.addEventListener('click', showFavoritesModal);

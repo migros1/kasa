@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -210,7 +211,7 @@
     <div class="modal" id="favoritesModal">
         <div class="modal-content">
             <h3>Favori Ürünler</h3>
-            <ul class="favorite-list" id="favoritesList"></ul>
+            <ul class="favorite-list" id="modalFavoritesList"></ul>
         </div>
     </div>
 
@@ -221,6 +222,7 @@
             const favoritesList = document.getElementById('favoritesList');
             const actionModal = document.getElementById('actionModal');
             const favoritesModal = document.getElementById('favoritesModal');
+            const modalFavoritesList = document.getElementById('modalFavoritesList');
             const copyCodeButton = document.getElementById('copyCodeButton');
             const removeFavoriteButton = document.getElementById('removeFavoriteButton');
 
@@ -271,7 +273,7 @@
             }
 
             function renderFavorites() {
-                favoritesList.innerHTML = '';
+                modalFavoritesList.innerHTML = '';
                 favorites.forEach(favorite => {
                     const li = document.createElement('li');
                     li.innerHTML = `
@@ -282,7 +284,7 @@
                         currentFavorite = favorite;
                         showActionModal();
                     };
-                    favoritesList.appendChild(li);
+                    modalFavoritesList.appendChild(li);
                 });
             }
 
@@ -302,32 +304,14 @@
                         favorites = favorites.filter(fav => fav.name !== currentFavorite.name);
                         localStorage.setItem('favorites', JSON.stringify(favorites));
                         renderFavorites();
-                        renderFavoritesModal();
                     }
                     actionModal.style.display = 'none';
                 };
             }
 
             function showFavoritesModal() {
-                renderFavoritesModal();
+                renderFavorites();
                 favoritesModal.style.display = 'flex';
-            }
-
-            function renderFavoritesModal() {
-                const modalFavoritesList = favoritesModal.querySelector('.favorite-list');
-                modalFavoritesList.innerHTML = '';
-                favorites.forEach(favorite => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <img src="${favorite.image}" alt="${favorite.name}">
-                        <div>${favorite.name} - Kasa Kodu: ${favorite.code}</div>
-                    `;
-                    li.onclick = function() {
-                        currentFavorite = favorite;
-                        showActionModal();
-                    };
-                    modalFavoritesList.appendChild(li);
-                });
             }
 
             actionModal.onclick = function(event) {

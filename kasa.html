@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kasa Kodları</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            color: #ff6600;
+        }
+
+        #searchBox {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #fff;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        li img {
+            margin-right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            background-color: #ff6600;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #e65c00;
+        }
+
+        #favoritesList li {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Kasa Kodları Listesi</h1>
+    <input type="text" id="searchBox" placeholder="Ürün Ara...">
+    <ul id="productList"></ul>
+
+    <h2>Favoriler</h2>
+    <ul id="favoritesList"></ul>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchBox = document.getElementById('searchBox');
+            const productList = document.getElementById('productList');
+            const favoritesList = document.getElementById('favoritesList');
+
+            let products = [];
+            let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+            // Fetch products from upcode.txt
+            fetch('upcode.txt')
+                .then(response => response.text())
+                .then(data => {
+                    const lines = data.trim().split('\n');
+                    products = lines.map(line => {
+                        const [name, code, image] = line.split(' - ');
+                        return { name, code, image };
+                    });
+                    renderProducts(products);
+                })
+                .catch(error => console.error('Dosya yükleme hatası:', error));
+
+            function renderProducts(products) {
+                productList.innerHTML = '';
+                products.sort((a, b) => a.name.localeCompare(b.name)).forEach(product => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <img src="${product.image}" alt="${product.name}">
+                        ${product.name} - Kasa Kodu: ${product.code}
+                        <button onclick="addToFavorites('${product.name}')">Favorilere Ekle</button>
+                    `;
+                    productList.appendChild(li);
+                });
+            }
+
+            window.addToFavorites = function(productName) {
+                if (!favorites.includes(productName)) {
+                    favorites.push(productName);
+                    localStorage.setItem('favorites', JSON.stringify(favorites));
+                    renderFavorites();
+                }
+            }
+
+            function renderFavorites() {
+                favoritesList.innerHTML = '';
+                favorites.forEach(favorite => {
+                    const li = document.createElement('li');
+                    li.textContent = favorite;
+                    favoritesList.appendChild(li);
+                });
+            }
+
+            searchBox.addEventListener('input', function() {
+                const searchTerm = searchBox.value.toLowerCase();
+                const filteredProducts = products.filter(product => product.name.toLowerCase().includes(searchTerm));
+                renderProducts(filteredProducts);
+            });
+
+            renderFavorites();
+        });
+    </script>
+</body>
+</html>

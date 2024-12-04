@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -212,6 +211,7 @@
         <div class="modal-content">
             <h3>Favori Ürünler</h3>
             <ul class="favorite-list" id="modalFavoritesList"></ul>
+            <button onclick="closeFavoritesModal()">Kapat</button>
         </div>
     </div>
 
@@ -312,6 +312,10 @@
             function showFavoritesModal() {
                 renderFavorites();
                 favoritesModal.style.display = 'flex';
+            }
+
+            function closeFavoritesModal() {
+                favoritesModal.style.display = 'none';
             }
 
             actionModal.onclick = function(event) {

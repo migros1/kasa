@@ -20,7 +20,7 @@
             margin-bottom: 20px;
         }
 
-        #searchBox {
+        #searchBox, #favoritesSearchBox {
             width: 100%;
             max-width: 500px;
             padding: 12px;
@@ -32,7 +32,7 @@
             transition: box-shadow 0.3s ease;
         }
 
-        #searchBox:focus {
+        #searchBox:focus, #favoritesSearchBox:focus {
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             outline: none;
         }
@@ -218,7 +218,7 @@
     <div class="modal" id="favoritesModal">
         <div class="modal-content">
             <h3>Favori Ürünler</h3>
-            <input type="text" id="favoritesSearchBox" placeholder="Favorilerde Ara..." style="margin-bottom: 15px;">
+            <input type="text" id="favoritesSearchBox" placeholder="Favorilerde Ara...">
             <ul class="favorite-list" id="modalFavoritesList"></ul>
             <button id="closeFavoritesButton">Kapat</button>
         </div>

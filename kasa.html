@@ -196,7 +196,7 @@
 <body>
     <h1>Kasa Kodları Listesi</h1>
     <input type="text" id="searchBox" placeholder="Ürün Ara...">
-    <button class="favorite-button" onclick="showFavoritesModal()">Favorilerim</button>
+    <button class="favorite-button" id="showFavoritesButton">Favorilerim</button>
     <ul id="productList"></ul>
 
     <div class="modal" id="actionModal">
@@ -211,7 +211,7 @@
         <div class="modal-content">
             <h3>Favori Ürünler</h3>
             <ul class="favorite-list" id="modalFavoritesList"></ul>
-            <button onclick="closeFavoritesModal()">Kapat</button>
+            <button id="closeFavoritesButton">Kapat</button>
         </div>
     </div>
 
@@ -224,6 +224,8 @@
             const modalFavoritesList = document.getElementById('modalFavoritesList');
             const copyCodeButton = document.getElementById('copyCodeButton');
             const removeFavoriteButton = document.getElementById('removeFavoriteButton');
+            const showFavoritesButton = document.getElementById('showFavoritesButton');
+            const closeFavoritesButton = document.getElementById('closeFavoritesButton');
 
             let products = [];
             let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
@@ -334,6 +336,9 @@
                 const filteredProducts = products.filter(product => product.name.toLowerCase().includes(searchTerm));
                 renderProducts(filteredProducts);
             });
+
+            showFavoritesButton.addEventListener('click', showFavoritesModal);
+            closeFavoritesButton.addEventListener('click', closeFavoritesModal);
 
             renderFavorites();
         });

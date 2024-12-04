@@ -531,14 +531,18 @@
             }
 
             function generateBarcode(code) {
-                barcodeContainer.innerHTML = ''; // Previous barcode temizle
-                const svg = document.createElement('svg');
-                JsBarcode(svg, code, {
-                    format: "CODE128",
-                    displayValue: true
-                });
-                barcodeContainer.appendChild(svg);
-                showBarcodeModal();
+                if (code.length === 7 && !isNaN(code)) {
+                    barcodeContainer.innerHTML = ''; // Previous barcode temizle
+                    const svg = document.createElement('svg');
+                    JsBarcode(svg, code, {
+                        format: "CODE128",
+                        displayValue: true
+                    });
+                    barcodeContainer.appendChild(svg);
+                    showBarcodeModal();
+                } else {
+                    alert("Geçerli bir 7 haneli kasa kodu değil!");
+                }
             }
 
             function showBarcodeModal() {

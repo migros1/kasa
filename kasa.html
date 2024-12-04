@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kasa Kodları</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1, h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #searchBox {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        #searchBox:focus {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            outline: none;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        li {
+            background-color: #fff;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        li:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        li img {
+            margin-right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(-50px);
+            animation: slideDown 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Kasa Kodları Listesi</h1>
+    <input type="text" id="searchBox" placeholder="Ürün Ara...">
+    <ul id="productList"></ul>
+
+    <h2>Favoriler</h2>
+    <ul id="favoritesList"></ul>
+
+    <div class="modal" id="actionModal">
+        <div class="modal-content">
+            <h3>İşlem Seçin</h3>
+            <button id="copyCodeButton">Kasa Kodunu Kopyala</button>
+            <button id="removeFavoriteButton">Favorilerden Çıkart</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchBox = document.getElementById('searchBox');
+            const productList = document.getElementById('productList');
+            const favoritesList = document.getElementById('favoritesList');
+            const actionModal = document.getElementById('actionModal');
+            const copyCodeButton = document.getElementById('copyCodeButton');
+            const removeFavoriteButton = document.getElementById('removeFavoriteButton');
+
+            let products = [];
+            let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            let currentFavorite = null;
+
+            // Fetch products from upcode.txt
+            fetch('upcode.txt')
+                .then(response => response.text())
+                .then(data => {
+                    const lines = data.trim().split('\n');
+                    products = lines.map(line => {
+                        const [name, code, image] = line.split(' - ');
+                        return { name, code, image };
+                    }).filter(product => product.name && product.code && product.image);
+                    renderProducts(products);
+                })
+                .catch(error => console.error('Dosya yükleme hatası:', error));
+
+            function renderProducts(products) {
+                productList.innerHTML = '';
+                products.sort((a, b) => a.name.localeCompare(b.name)).forEach(product => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <img src="${product.image}" alt="${product.name}">
+                        <div>${product.name} - Kasa Kodu: ${product.code}</div>
+                        <button onclick="addToFavorites('${product.name}', '${product.code}', '${product.image}')">Favorilere Ekle</button>
+                    `;
+                    li.querySelector('div').onclick = function() {
+                        currentFavorite = product;
+                        showActionModal();
+                    };
+                    productList.appendChild(li);
+                });
+            }
+
+            window.addToFavorites = function(name, code, image) {
+                const favorite = { name, code, image };
+                if (!favorites.some(fav => fav.name === name)) {
+                    favorites.push(favorite);
+                    localStorage.setItem('favorites', JSON.stringify(favorites));
+                    renderFavorites();
+                }
+            }
+
+            function renderFavorites() {
+                favoritesList.innerHTML = '';
+                favorites.forEach(favorite => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <img src="${favorite.image}" alt="${favorite.name}">
+                        <div>${favorite.name} - Kasa Kodu: ${favorite.code}</div>
+                    `;
+                    li.onclick = function() {
+                        currentFavorite = favorite;
+                        showActionModal();
+                    };
+                    favoritesList.appendChild(li);
+                });
+            }
+
+            function showActionModal() {
+                actionModal.style.display = 'flex';
+                copyCodeButton.onclick = function() {
+                    if (currentFavorite) {
+                        navigator.clipboard.writeText(currentFavorite.code).then(() => {
+                            alert('Kasa kodu kopyalandı!');
+                        });
+                    }
+                    actionModal.style.display = 'none';
+                };
+
+                removeFavoriteButton.onclick = function() {
+                    if (currentFavorite) {
+                        favorites = favorites.filter(fav => fav.name !== currentFavorite.name);
+                        localStorage.setItem('favorites', JSON.stringify(favorites));
+                        renderFavorites();
+                    }
+                    actionModal.style.display = 'none';
+                };
+            }
+
+            actionModal.onclick = function(event) {
+                if (event.target === actionModal) {
+                    actionModal.style.display = 'none';
+                }
+            };
+
+            searchBox.addEventListener('input', function() {
+                const searchTerm = searchBox.value.toLowerCase();
+                const filteredProducts = products.filter(product => product.name.toLowerCase().includes(searchTerm));
+                renderProducts(filteredProducts);
+            });
+
+            renderFavorites();
+        });
+    </script>
+</body>
+</html>

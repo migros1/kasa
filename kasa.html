@@ -52,7 +52,6 @@
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
-            justify-content: space-between;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
@@ -63,10 +62,26 @@
 
         li img {
             margin-right: 20px;
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             border: 1px solid #ddd;
+        }
+
+        .product-info {
+            flex-grow: 1;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .product-code {
+            font-size: 14px;
+            color: #666;
         }
 
         button {
@@ -172,10 +187,13 @@
                     const li = document.createElement('li');
                     li.innerHTML = `
                         <img src="${product.image}" alt="${product.name}">
-                        <div>${product.name} - Kasa Kodu: ${product.code}</div>
+                        <div class="product-info">
+                            <div class="product-name">${product.name}</div>
+                            <div class="product-code">Kasa Kodu: ${product.code}</div>
+                        </div>
                         <button onclick="addToFavorites('${product.name}', '${product.code}', '${product.image}')">Favorilere Ekle</button>
                     `;
-                    li.querySelector('div').onclick = function() {
+                    li.querySelector('.product-info').onclick = function() {
                         currentFavorite = product;
                         showActionModal();
                     };
@@ -198,7 +216,10 @@
                     const li = document.createElement('li');
                     li.innerHTML = `
                         <img src="${favorite.image}" alt="${favorite.name}">
-                        <div>${favorite.name} - Kasa Kodu: ${favorite.code}</div>
+                        <div class="product-info">
+                            <div class="product-name">${favorite.name}</div>
+                            <div class="product-code">Kasa Kodu: ${favorite.code}</div>
+                        </div>
                     `;
                     li.onclick = function() {
                         currentFavorite = favorite;

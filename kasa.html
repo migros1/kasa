@@ -15,7 +15,7 @@
             align-items: center;
         }
 
-        h1, h2 {
+        h1 {
             color: #333;
             margin-bottom: 20px;
         }
@@ -24,7 +24,7 @@
             width: 100%;
             max-width: 500px;
             padding: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 25px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -35,6 +35,26 @@
         #searchBox:focus {
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             outline: none;
+        }
+
+        .favorite-button {
+            margin-bottom: 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .favorite-button:active {
+            transform: scale(0.95);
+        }
+
+        .favorite-button:hover {
+            background-color: #218838;
         }
 
         ul {
@@ -122,6 +142,8 @@
             padding: 30px 20px;
             border-radius: 15px;
             width: 320px;
+            max-height: 80%;
+            overflow-y: auto;
             text-align: center;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             transform: translateY(-50px);
@@ -140,6 +162,26 @@
             margin: 10px 0;
         }
 
+        .favorite-list {
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .favorite-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .favorite-list img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -154,10 +196,8 @@
 <body>
     <h1>Kasa Kodları Listesi</h1>
     <input type="text" id="searchBox" placeholder="Ürün Ara...">
+    <button class="favorite-button" onclick="showFavoritesModal()">Favorilerim</button>
     <ul id="productList"></ul>
-
-    <h2>Favoriler</h2>
-    <ul id="favoritesList"></ul>
 
     <div class="modal" id="actionModal">
         <div class="modal-content">
@@ -167,12 +207,20 @@
         </div>
     </div>
 
+    <div class="modal" id="favoritesModal">
+        <div class="modal-content">
+            <h3>Favori Ürünler</h3>
+            <ul class="favorite-list" id="favoritesList"></ul>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchBox = document.getElementById('searchBox');
             const productList = document.getElementById('productList');
             const favoritesList = document.getElementById('favoritesList');
             const actionModal = document.getElementById('actionModal');
+            const favoritesModal = document.getElementById('favoritesModal');
             const copyCodeButton = document.getElementById('copyCodeButton');
             const removeFavoriteButton = document.getElementById('removeFavoriteButton');
 
@@ -228,10 +276,7 @@
                     const li = document.createElement('li');
                     li.innerHTML = `
                         <img src="${favorite.image}" alt="${favorite.name}">
-                        <div class="product-info">
-                            <div class="product-name">${favorite.name}</div>
-                            <div class="product-code">Kasa Kodu: ${favorite.code}</div>
-                        </div>
+                        <div>${favorite.name} - Kasa Kodu: ${favorite.code}</div>
                     `;
                     li.onclick = function() {
                         currentFavorite = favorite;
@@ -257,14 +302,43 @@
                         favorites = favorites.filter(fav => fav.name !== currentFavorite.name);
                         localStorage.setItem('favorites', JSON.stringify(favorites));
                         renderFavorites();
+                        renderFavoritesModal();
                     }
                     actionModal.style.display = 'none';
                 };
             }
 
+            function showFavoritesModal() {
+                renderFavoritesModal();
+                favoritesModal.style.display = 'flex';
+            }
+
+            function renderFavoritesModal() {
+                const modalFavoritesList = favoritesModal.querySelector('.favorite-list');
+                modalFavoritesList.innerHTML = '';
+                favorites.forEach(favorite => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <img src="${favorite.image}" alt="${favorite.name}">
+                        <div>${favorite.name} - Kasa Kodu: ${favorite.code}</div>
+                    `;
+                    li.onclick = function() {
+                        currentFavorite = favorite;
+                        showActionModal();
+                    };
+                    modalFavoritesList.appendChild(li);
+                });
+            }
+
             actionModal.onclick = function(event) {
                 if (event.target === actionModal) {
                     actionModal.style.display = 'none';
+                }
+            };
+
+            favoritesModal.onclick = function(event) {
+                if (event.target === favoritesModal) {
+                    favoritesModal.style.display = 'none';
                 }
             };
 

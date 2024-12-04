@@ -165,6 +165,7 @@
         .favorite-list {
             padding: 0;
             list-style-type: none;
+            margin-top: 10px;
         }
 
         .favorite-list li {
@@ -208,6 +209,10 @@
             margin: 0;
         }
 
+        .select-checkbox {
+            margin-right: 15px;
+        }
+
         #actionModal {
             z-index: 2;
         }
@@ -245,6 +250,10 @@
         <div class="modal-content">
             <h3>Favori Ürünler</h3>
             <input type="text" id="favoritesSearchBox" placeholder="Favorilerde Ara...">
+            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                <button id="clearAllButton" style="flex: 1; margin-right: 5px;">Tüm Listeyi Temizle</button>
+                <button id="selectToDeleteButton" style="flex: 1; margin-left: 5px;">Seçip Temizle</button>
+            </div>
             <ul class="favorite-list" id="modalFavoritesList"></ul>
             <button id="closeFavoritesButton">Kapat</button>
         </div>
@@ -262,12 +271,15 @@
             const showFavoritesButton = document.getElementById('showFavoritesButton');
             const closeFavoritesButton = document.getElementById('closeFavoritesButton');
             const favoritesSearchBox = document.getElementById('favoritesSearchBox');
-
+            const clearAllButton = document.getElementById('clearAllButton');
+            const selectToDeleteButton = document.getElementById('selectToDeleteButton');
+            
             const defaultImage = "https://images.sftcdn.net/images/t_app-icon-s/p/0642cb1f-18e9-46e6-860c-3f9254debea6/2321330045/migros-sanal-market-logo";
 
             let products = [];
             let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
             let currentFavorite = null;
+            let selectingToDelete = false;
 
             // Fetch products from upcode.txt
             fetch('upcode.txt')
@@ -317,6 +329,7 @@
                 .forEach(favorite => {
                     const li = document.createElement('li');
                     li.innerHTML = `
+                        ${selectingToDelete ? '<input type="checkbox" class="select-checkbox">' : ''}
                         <img src="${favorite.image}" alt="${favorite.name}">
                         <div class="product-info">
                             <div class="product-name">${favorite.name}</div>
@@ -325,7 +338,9 @@
                     `;
                     li.onclick = function() {
                         currentFavorite = favorite;
-                        showActionModal();
+                        if (!selectingToDelete) {
+                            showActionModal();
+                        }
                     };
                     modalFavoritesList.appendChild(li);
                 });
@@ -383,6 +398,32 @@
             favoritesSearchBox.addEventListener('input', function() {
                 const searchTerm = favoritesSearchBox.value;
                 renderFavorites(searchTerm);
+            });
+
+            clearAllButton.addEventListener('click', function() {
+                if (confirm("Tüm favorileri silmek istediğinizden emin misiniz?")) {
+                    favorites = [];
+                    localStorage.removeItem('favorites');
+                    renderFavorites();
+                }
+            });
+
+            selectToDeleteButton.addEventListener('click', function() {
+                if (!selectingToDelete) {
+                    selectingToDelete = true;
+                    selectToDeleteButton.textContent = 'Seçilenleri Temizle';
+                } else {
+                    const checkboxes = document.querySelectorAll('.select-checkbox');
+                    checkboxes.forEach((checkbox, index) => {
+                        if (checkbox.checked) {
+                            favorites.splice(index, 1);
+                        }
+                    });
+                    selectingToDelete = false;
+                    selectToDeleteButton.textContent = 'Seçip Temizle';
+                    localStorage.setItem('favorites', JSON.stringify(favorites));
+                }
+                renderFavorites();
             });
 
             showFavoritesButton.addEventListener('click', showFavoritesModal);
